@@ -1,0 +1,43 @@
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+ 
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+sudo apt-get update
+
+sudo apt-get install -y docker-ce=5:19.03.10~3-0~ubuntu-focal  kubelet=1.14.5-00 kubeadm=1.14.5-00 kubectl=1.14.5-00
+
+Docker version; kubectl version; kubeadm version
+
+sudo apt-mark hold kubelet kubeadm kubectl
+
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+
+kubectl create deployment nginx --image=nginx
+kubectl run nginx --image=nginx
+
+kubectl get deployments
+
+cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dev-pod
+  labels:
+    app: busybox
+spec:
+  containers:
+  - name: dev
+    image: busybox
+    command: ['sh', '-c', 'echo Hello Kubernetes! && sleep 3600']
+EOF
+
+kubectl get pods
