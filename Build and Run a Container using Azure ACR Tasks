@@ -1,0 +1,25 @@
+#### Start Cloud Shell ####
+# Click the Cloud Shell icon (>_) in the upper right.
+# Select Bash.
+# Click Show advanced settings.
+# Change Cloud Shell Region to the same region as the existing resource group.
+# For Storage account, select Use existing.
+# For File share, select Create new and give it a name of "fileshare".
+# Click Create storage.
+
+#### Create a New Container Registry ####
+# In the Azure portal, click the listed resource group name.
+# Copy it to your clipboard.
+# Create a new container registry, replacing <RESOURCE_GROUP_NAME> with the name you just copied.
+# Change the directory to clouddrive.
+# Create a Dockerfile.
+
+az acr create --resource-group $RG --name $ACR --sku Basic --admin-enabled true
+echo "From hello-world" > Dockerfile
+
+#### Build an Image and Push to ACR
+# Build and push the image to Azure Container Registry using the newly created Dockerfile.
+az acr build --image sample/hello-world:v1 --registry acrbuildcontainer11 --file Dockerfile .
+
+#### Run the New Container ####
+az acr run --registry $ACR --cmd '$Registry/sample/hello-world:v1' /dev/null
